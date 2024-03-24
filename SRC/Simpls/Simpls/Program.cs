@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Net.Sockets;
 
 namespace Simpls
 {
@@ -65,8 +66,11 @@ namespace Simpls
             //manager.Set("TE1001");
             //manager.Clear();
 
-            EchoServer server = new EchoServer();
-            server.Start();
+            EchoClient client = new EchoClient();
+            client.Start();
+            
+
+            Console.Read();
         }
     }
 }

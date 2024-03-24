@@ -20,8 +20,13 @@ namespace Simpls
             using (var socket = listener.EndAcceptSocket(iar))
             {
                 listener.BeginAcceptSocket(Accept, listener);
-                this.Read(socket);
-                this.Write(socket);
+                socket.SendBufferSize = 1024;
+                while (true)
+                {
+                    this.Read(socket);
+                    this.Write(socket);
+                    Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+                }
             }
 
         }
@@ -41,10 +46,56 @@ namespace Simpls
         {
             using (var ns = new NetworkStream(socket,false))
             {
-                var message = "(0,0,0)";
+                var message = Guid.NewGuid().ToString();
                 var buffer = Encoding.ASCII.GetBytes(message);
                 ns.Write(buffer, 0, buffer.Length);
             }
+        }
+    }
+
+    public class EchoClient
+    {
+        private readonly EchoServer _server = new EchoServer();
+        private readonly TcpClient _client = new TcpClient();
+        public EchoClient()
+        {
+            _server.Start();
+
+        }
+
+        public void Start()
+        {
+            _client.BeginConnect("127.0.0.1", 2115, ConnectAsync, _client);
+        }
+
+        private void ConnectAsync(IAsyncResult iar)
+        {
+            var client = iar.AsyncState as TcpClient;
+            client.EndConnect(iar);
+            client.ReceiveBufferSize = 1024;
+            var ns = client.GetStream();
+            while (true)
+            {
+                this.Write(ns);
+                this.Read(ns);
+            }
+        }
+
+        private void Write(NetworkStream ns)
+        {
+            var buffer = Encoding.ASCII.GetBytes("hello");
+            ns.Write(buffer, 0, buffer.Length);
+        }
+
+        private void Read(NetworkStream ns)
+        {
+            var buffer = ArrayPool<byte>.Shared.Rent(1024);
+            var count = ns.Read(buffer, 0, buffer.Length);
+            ArraySegment<byte> array = new ArraySegment<byte>(buffer);
+            var spans = array.Slice(0, count).AsSpan<byte>();
+            var message = Encoding.ASCII.GetString(spans);
+            Console.WriteLine(message);
+            ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 }
