@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 
 namespace Simpls
 {
@@ -66,11 +68,41 @@ namespace Simpls
             //manager.Set("TE1001");
             //manager.Clear();
 
-            EchoClient client = new EchoClient();
-            client.Start();
-            
+            //EchoClient client = new EchoClient();
+            //client.Start();
 
+
+
+            //var message = "20240328 183718:945|<>c-<.ctor>b__29_0:0|SAFEDOOR_MANUAL手动进料开门";
+            //var regex = new Regex(@"^(\d{8}\s\d{6}:\d{3})\|.*$");
+            //var match = regex.Match(message);
+
+            //if (DateTime.TryParseExact(match.Groups[1].Value, "yyyyMMdd HHmmss:fff", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            //{
+
+            //}
+
+           var collection = new FixedSizeCollection<string>(10);
+            collection.CollectionChanged += Collection_CollectionChanged;
+           for (int i = 0; i < 1000000; i++)
+            {
+                collection.Push(i.ToString());
+                Task.Delay(1000).Wait();
+            }
             Console.Read();
+        }
+
+        private static void Collection_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var x = sender as FixedSizeCollection<string>;
+            var array = x.ToArray();
+            for (int i = array.Length-1;i >=0;i--)
+            {
+                var item = array[i];
+                Console.WriteLine(item);
+            }
+            
+            Console.WriteLine("-------------------------------------------------------------------------------------------------------------");
         }
     }
 }
