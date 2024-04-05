@@ -82,27 +82,26 @@ namespace Simpls
 
             //}
 
-           var collection = new FixedSizeCollection<string>(10);
+
+            FixedSizeCollection<int> collection = new FixedSizeCollection<int>(10);
             collection.CollectionChanged += Collection_CollectionChanged;
-           for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < int.MaxValue; i++)
             {
-                collection.Push(i.ToString());
-                Task.Delay(1000).Wait();
+                collection.Push(i);
+                Thread.Sleep(1000);
             }
             Console.Read();
         }
 
-        private static void Collection_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private static void Collection_CollectionChanged(IEnumerable<int> sender, NotifyCollectionChangedEventArgs<int> e)
         {
-            var x = sender as FixedSizeCollection<string>;
-            var array = x.ToArray();
-            for (int i = array.Length-1;i >=0;i--)
+            var x = sender as FixedSizeCollection<int>;
+            foreach (var item in x)
             {
-                var item = array[i];
                 Console.WriteLine(item);
             }
-            
             Console.WriteLine("-------------------------------------------------------------------------------------------------------------");
         }
+
     }
 }

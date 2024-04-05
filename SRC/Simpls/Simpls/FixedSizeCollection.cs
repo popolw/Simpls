@@ -3,28 +3,50 @@ using System.Collections.Specialized;
 
 namespace Simpls
 {
-    public class FixedSizeCollection<T>:IEnumerable<T>, INotifyCollectionChanged
-    {
-        private readonly Queue<T> _queue;
 
-        public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public delegate void NotifyCollectionChangedEventHandler<T>(IEnumerable<T> sender, NotifyCollectionChangedEventArgs<T> e);
+
+    public class NotifyCollectionChangedEventArgs<T> : EventArgs
+    {
+        public NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action)
+        {
+            this.Action = action;
+        }
+
+        public NotifyCollectionChangedAction Action { get; }
+    }
+
+    public interface INotifyCollectionChanged<T>
+    {
+       public event NotifyCollectionChangedEventHandler<T>? CollectionChanged;
+    }
+
+    public class FixedSizeCollection<T>:IEnumerable<T>, INotifyCollectionChanged<T>
+    {
+        private readonly T[] _source;
+
+        public event NotifyCollectionChangedEventHandler<T>? CollectionChanged;
 
         public FixedSizeCollection(int length)
         {
-            _queue = new Queue<T>(new T[length]);
+            _source=new T[length];
         }
 
         public void Push(T value)
         {
-            _queue.TryDequeue(out _);
-            _queue.Enqueue(value);
-            this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
+            for (int i = _source.Length-1; i >= 0; i--)
+            {
+                var next = i - 1;
+                if(next>=0) _source[i] = _source[next];
+            }
+            _source[0] = value;
+            this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Add));
         }
 
 
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (var item in this._queue)
+            foreach (var item in this._source)
             {
                 yield return item;
             }
@@ -32,7 +54,7 @@ namespace Simpls
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            foreach (var item in this._queue)
+            foreach (var item in this._source)
             {
                 yield return item;
             }
