@@ -50,6 +50,7 @@ public class ModbusClient : IDisposable
     public float[] ReadSingles(ushort address, ushort readCount, byte slave = 1)
     {
         var array = new float[readCount];
+        //float是两位读取
         var source = this.ReadNumbers(address, (ushort)(readCount * 2), slave);
         var pairs = GroupByPairs(source).ToArray();
         for (int i = 0; i < array.Length; i++)
