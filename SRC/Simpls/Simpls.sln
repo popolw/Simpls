@@ -7,11 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simpls", "Simpls\Simpls.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{EE9A5AF9-934A-40FC-B9CF-28222F6DCE63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLRPC.Server", "XMLRPC.Server\XMLRPC.Server.csproj", "{52332D8A-3F0D-423A-9095-81B0C1D3B225}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLRPC.Server", "XMLRPC.Server\XMLRPC.Server.csproj", "{52332D8A-3F0D-423A-9095-81B0C1D3B225}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLRPC.Contracts", "XMLRPC.Contracts\XMLRPC.Contracts.csproj", "{E78819BD-06CC-4DDB-B5CA-DCCF6A0A4D3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLRPC.Contracts", "XMLRPC.Contracts\XMLRPC.Contracts.csproj", "{E78819BD-06CC-4DDB-B5CA-DCCF6A0A4D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLRPC.Client", "XMLRPC.Client\XMLRPC.Client.csproj", "{7CEAE18F-DDF8-4A05-8A6A-758D7DDFB948}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLRPC.Client", "XMLRPC.Client\XMLRPC.Client.csproj", "{7CEAE18F-DDF8-4A05-8A6A-758D7DDFB948}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fins", "Fins\Fins.csproj", "{2A5C5C56-9C58-42D7-BCF0-D3B349BB55D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{7CEAE18F-DDF8-4A05-8A6A-758D7DDFB948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CEAE18F-DDF8-4A05-8A6A-758D7DDFB948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CEAE18F-DDF8-4A05-8A6A-758D7DDFB948}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A5C5C56-9C58-42D7-BCF0-D3B349BB55D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A5C5C56-9C58-42D7-BCF0-D3B349BB55D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A5C5C56-9C58-42D7-BCF0-D3B349BB55D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A5C5C56-9C58-42D7-BCF0-D3B349BB55D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

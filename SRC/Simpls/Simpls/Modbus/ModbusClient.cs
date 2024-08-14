@@ -1,7 +1,7 @@
 ﻿using Modbus.Device;
 using System.Collections.Concurrent;
 
-public class ModbusClient : IDisposable
+public class ModbusClient 
 {
     private readonly string _ip;
     private readonly int _port;
@@ -10,6 +10,23 @@ public class ModbusClient : IDisposable
     {
         this._ip = ip;
         this._port = port;
+        TcpPoolFactory.OnDisponsed += TcpPoolFactory_OnDisponsed;
+    }
+
+    private void TcpPoolFactory_OnDisponsed(object? sender, EventArgs e)
+    {
+        foreach (var item in _dic)
+        {
+            try
+            {
+                item.Value.Dispose();
+            }
+            catch 
+            {
+
+            }
+        }
+        _dic.Clear();
     }
 
     public ushort[] ReadNumbers(ushort address, ushort readCount, byte slave = 1)
@@ -235,8 +252,4 @@ public class ModbusClient : IDisposable
         return array;
     }
 
-    public void Dispose()
-    {
-
-    }
 }

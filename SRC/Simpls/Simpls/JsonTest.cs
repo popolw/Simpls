@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualBasic.FileIO;
+using NUnit.Framework;
+using System.Data;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -125,5 +128,163 @@ namespace Simpls
 
             var x = JsonSerializer.Deserialize<ARCCALLTYPE>("122");
         }
+
+        [Test]
+        public void MSCPlan()
+        {
+            var path = @"E:\sts-oven\OvenClient\Config\MCSPlanConfig.txt";
+            var json = File.ReadAllText(path, Encoding.UTF8);
+            var doc = JsonDocument.Parse(json);
+            var array = doc.RootElement.EnumerateArray();
+            var sb = new StringBuilder();
+            sb.AppendLine("INSERT INTO [MCSPlan]([ProcessPlan],[ProcessStep],[EQPName],[AliasName])");
+            foreach (JsonElement ele in array)
+            {
+                var plan = ele.GetProperty("ProcessPlan").GetString();
+                var step = ele.GetProperty("ProcessStep").GetString();
+                var eqp = ele.GetProperty("EQPName").GetString();
+                var alias = ele.GetProperty("AliasName").GetString();
+                sb.AppendLine($"SELECT '{plan}','{step}','{eqp}','{alias}' UNION ALL");
+            }
+            var sql= sb.ToString();
+        }
+
+
+        public static DataTable ReadCsvToDataTable(string path)
+        {
+            DataTable dt = new DataTable();
+
+            using (TextFieldParser csvReader = new TextFieldParser(path))
+            {
+                csvReader.SetDelimiters(new string[] { "," });
+                csvReader.HasFieldsEnclosedInQuotes = true;
+
+                // 读取标题行
+                string[] colFields = csvReader.ReadFields();
+                foreach (string columnTitle in colFields)
+                {
+                    dt.Columns.Add(columnTitle);
+
+                }
+
+                // 读取每行记录
+                while (!csvReader.EndOfData)
+                {
+                    string[] fieldData = csvReader.ReadFields();
+                    // 跳过空行
+                    if (fieldData.Length == 0 || string.IsNullOrWhiteSpace(fieldData[0])) continue;
+
+                    DataRow row = dt.NewRow();
+                    row.ItemArray = fieldData;
+                    dt.Rows.Add(row);
+                }
+            }
+
+            return dt;
+        }
+
+
+        [Test]
+        public void AlarmConfig()
+        {
+            var table = ReadCsvToDataTable(@"D:\OvenAlarmTable.txt");
+            var sb = new StringBuilder();
+            sb.AppendLine("INSERT INTO [AlarmConfig]([Part],[FaultCode],[PLCFaultCode],[Enable],[HmiVaribale],[Level],[Content],[Measure])");
+            foreach(DataRow row in table.Rows)
+            {
+                var enable = row["Enable"].ToString()=="y"?1:0;
+                sb.AppendLine($"SELECT '{row["Part"]}','{row["FaultCode"]}','{row["PLCFaultCode"]}',{enable},'{row["HmiVaribale"]}',N'{row["Level"]}',N'{row["Content"]}',N'{row["Measure"]}' UNION ALL");
+            }
+            var sql = sb.ToString();
+        }
+
+
+        #region RobotPos
+        public class RobotPosDefine
+        {
+            public string EquipmentID { get; set; }
+
+            public string EquipmentName { get; set; }
+
+            public int EquipmentType { get; set; }
+
+            public int EquipmenPort { get; set; }
+
+            public string EntryPosName { get; set; }
+
+            public string DockPosName { get; set; }
+
+            public string LeavePosName { get; set; }
+
+            public int PosColumn { get; set; }
+
+            public int PosRow { get; set; }
+
+            public string EquipmentCommunicationIP { get; set; }
+
+            public int EquipmentCommunicationPort { get; set; }
+
+            public string EquipmentCommunicationVars { get; set; }
+
+            public override string ToString()
+            {
+                return $"SELECT N'{EquipmentID}',N'{EquipmentName}',{EquipmentType},{EquipmenPort},N'{EntryPosName}',N'{DockPosName}',N'{LeavePosName}',{PosColumn},{PosRow},N'{EquipmentCommunicationIP}',{EquipmentCommunicationPort},N'{EquipmentCommunicationVars}' UNION ALL";
+            }
+        }
+        #endregion
+
+        [Test]
+        public void RobotPos()
+        {
+
+           var path = @"E:\iararchitecture\ICS\\iar-ics-server\IAR-ICS-WebApi\Config\RobotPos.json";
+           var json = File.ReadAllText(path,Encoding.UTF8);
+            var sb = new StringBuilder();
+            var properties = typeof(RobotPosDefine).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            var list = JsonSerializer.Deserialize<List<RobotPosDefine>>(json);
+            sb.AppendLine("INSERT INTO [RobotPos]([EquipmentID],[EquipmentName],[EquipmentType],[EquipmenPort],[EntryPosName],[DockPosName],[LeavePosName],[PosColumn],[PosRow],[EquipmentCommunicationIP],[EquipmentCommunicationPort],[EquipmentCommunicationVars])");
+            foreach (var item in list)
+            {
+                sb.AppendLine(item.ToString());
+            }
+            var sql = sb.ToString();
+
+        }
+
+        [Test]
+        public void DateTimeConvertTest()
+        {
+           var timestring= DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var ndate = Convert.ToDateTime(timestring);
+        }
+
+        public static float GetSingle(ushort highOrderValue, ushort lowOrderValue)
+        {
+            return BitConverter.ToSingle(BitConverter.GetBytes(lowOrderValue).Concat(BitConverter.GetBytes(highOrderValue)).ToArray(), 0);
+        }
+
+        private static T[][] GroupArray<T>(T[] array, int groupSize)
+        {
+            if (groupSize <= 0)
+                throw new ArgumentException("Group size must be a positive integer.");
+
+            var groups = array.Select((item, index) => new { item, groupIndex = index / groupSize })
+                               .GroupBy(x => x.groupIndex)
+                               .Select(g => g.Select(x => x.item).ToArray())
+                               .ToArray();
+            return groups;
+        }
+
+        [Test]
+        public void ByteTest()
+        {
+            var size = sizeof(short);
+            byte[] buffer = new byte[] { 65, 32 };
+
+
+            ushort ushortValue = BitConverter.ToUInt16(buffer.Reverse().ToArray(), 0);
+            float floatValue = (float)ushortValue / 100.0f;
+        }
+
     }
 }

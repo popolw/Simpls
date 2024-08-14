@@ -158,6 +158,8 @@ public class TcpPoolFactory
 {
     private static ConcurrentDictionary<string, TcpClientPool> _dic = new ConcurrentDictionary<string, TcpClientPool>();
 
+    public static event EventHandler<EventArgs> OnDisponsed;
+
     /// <summary>
     /// 根据IP和端口创建一个指定连接数量的连接池   
     /// </summary>
@@ -181,5 +183,6 @@ public class TcpPoolFactory
             kv.Value.Dispose();
         }
         _dic.Clear();
+        OnDisponsed?.Invoke(default, EventArgs.Empty);
     }
 }
